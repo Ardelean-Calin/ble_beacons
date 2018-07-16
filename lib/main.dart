@@ -7,8 +7,7 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 
-final String databaseURL =
-    "YOUR_URL_HERE";
+final String databaseURL = "YOUR_URL_HERE";
 
 void main() => runApp(MyApp());
 
@@ -77,34 +76,40 @@ class BeaconsViewState extends State<BeaconsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Center(
-            child: Text("BLE Beacons in range"),
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: refreshing ? null : _startScanBLE,
-            )
-          ],
-        ),
-        body: Center(
-          child: BeaconsList(beacons, _uploadData),
-        ),
-        // Just a Floating Action button to upload everything
-        bottomNavigationBar: beacons.keys.toList().length > 0
-            ? Padding(
-                padding: EdgeInsets.all(20.0),
-                child: FloatingActionButton(
-                  tooltip: "Upload beacon data",
-                  elevation: 2.0,
-                  onPressed: _uploadAllData,
-                  mini: false,
-                  child: Icon(Icons.cloud_upload),
-                ),
-              )
-            : null);
+    return DefaultTabController(
+        length: 3,
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                "BLE Beacons in range",
+              ),
+              centerTitle: true,
+              bottom: TabBar(
+                tabs: <Widget>[
+                  Tab(icon: Icon(Icons.bluetooth)),
+                  Tab(icon: Icon(Icons.pin_drop)),
+                  Tab(icon: Icon(Icons.settings)),
+                ],
+              ),
+            ),
+            body: Center(
+              child: beacons.length > 0
+                  ? BeaconsList(beacons, _uploadData)
+                  : Text("Discovered beacons will appear here"),
+            ),
+            // Just a Floating Action button to upload everything
+            bottomNavigationBar: beacons.keys.toList().length > 0
+                ? Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: FloatingActionButton(
+                      tooltip: "Upload beacon data",
+                      elevation: 2.0,
+                      onPressed: _uploadAllData,
+                      mini: false,
+                      child: Icon(Icons.cloud_upload),
+                    ),
+                  )
+                : null));
   }
 
   _getCurrentLocation() async {
@@ -163,7 +168,7 @@ class BeaconsViewState extends State<BeaconsView> {
   }
 
   _uploadAllData() {
-    beacons.keys.forEach((uid){
+    beacons.keys.forEach((uid) {
       _uploadData(uid);
     });
   }
@@ -179,8 +184,7 @@ class BeaconsViewState extends State<BeaconsView> {
 
     String json = jsonEncode(tempBeacon);
 
-    http.patch(databaseURL, body: '{"${uid}": ${json}}').then(
-        (response) {
+    http.patch(databaseURL, body: '{"${uid}": ${json}}').then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
     });
